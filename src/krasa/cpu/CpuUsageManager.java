@@ -39,6 +39,7 @@ public class CpuUsageManager {
 			}
 		} catch (Exception e) {
 			log.error(e);
+			throw e;
 		}
 	}
 
