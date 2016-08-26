@@ -33,7 +33,7 @@ public class CpuUsageManager {
 
 			boolean painted = false;
 			for (CpuUsagePanel cpuUsagePanel : cpuUsagePanelList) {
-				painted = painted || cpuUsagePanel.updateState();
+				painted = cpuUsagePanel.updateState() || painted;
 			}
 			if (painted) {
 				Toolkit.getDefaultToolkit().sync();
