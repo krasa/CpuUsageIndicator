@@ -135,10 +135,12 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			final Graphics2D g2 = (Graphics2D) bufferedImage.getGraphics().create();
 
 			final int max = 100;
-			final int otherProcesses = CpuUsageManager.system - CpuUsageManager.process;
+			int system = CpuUsageManager.system;
+			int process = CpuUsageManager.process;
+			final int otherProcesses = system - process;
 
 			final int totalBarLength = size.width - insets.left - insets.right + 1;
-			final int processUsageBarLength = totalBarLength * CpuUsageManager.process / max;
+			final int processUsageBarLength = totalBarLength * process / max;
 			final int otherProcessesUsageBarLength = totalBarLength * otherProcesses / max;
 			final int barHeight = Math.max(size.height, getFont().getSize() + 2);
 			final int yOffset = (size.height - barHeight) / 2;
@@ -160,7 +162,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			g2.setFont(getFont());
 //			final String info = CpuUsageBundle.message("cpu.usage.panel.message.text", CpuUsageManager.process,
 //					CpuUsageManager.system);
-			final String info = fixedLengthString(String.valueOf(CpuUsageManager.process), 3) + "% / " + fixedLengthString(String.valueOf(CpuUsageManager.system), 3) + "%";
+			final String info = fixedLengthString(String.valueOf(process), 3) + "% / " + fixedLengthString(String.valueOf(system), 3) + "%";
 			
 			final FontMetrics fontMetrics = g.getFontMetrics();
 			final int infoWidth = fontMetrics.charsWidth(info.toCharArray(), 0, info.length());
