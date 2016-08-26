@@ -25,14 +25,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 
-import com.intellij.concurrency.JobScheduler;
-import com.intellij.openapi.application.ApplicationManager;
-import com.sun.management.OperatingSystemMXBean;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.intellij.concurrency.JobScheduler;
 import com.intellij.ide.ui.UISettings;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -42,6 +41,7 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.update.Activatable;
 import com.intellij.util.ui.update.UiNotifyConnector;
+import com.sun.management.OperatingSystemMXBean;
 
 public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	@NonNls
@@ -185,7 +185,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			//border
 			g2.setStroke(new BasicStroke(1));
 			g2.setColor(JBColor.GRAY);
-			g2.drawRect(0,0,size.width-1,size.height-1);
+			g2.drawRect(1, 0, size.width - 3, size.height - 1);
 
 			g2.dispose();
 		}
