@@ -181,6 +181,13 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			myBufferedImage = bufferedImage;
 		}
 
+		draw(g, bufferedImage);
+	}
+
+	/**
+	 * it will probably be better synchronized, not sure
+	 */
+	private synchronized void draw(Graphics g, Image bufferedImage) {
 		UIUtil.drawImage(g, bufferedImage, 0, 0, null);
 		if (UIUtil.isRetina() && !UIUtil.isUnderDarcula()) {
 			Graphics2D g2 = (Graphics2D) g.create(0, 0, getWidth(), getHeight());
