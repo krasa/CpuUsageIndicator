@@ -18,8 +18,6 @@ package krasa.cpu;
 import static com.intellij.ui.ColorUtil.softer;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.*;
@@ -56,11 +54,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		setOpaque(false);
 		setFocusable(false);
 
-		addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				CpuUsageManager.update();
-			}
-		});
+		addActionListener(e -> CpuUsageManager.update());
 
 		setBorder(StatusBarWidget.WidgetBorder.INSTANCE);
 		updateUI();
@@ -138,7 +132,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			final int max = 100;
 			final int otherProcesses = CpuUsageManager.system - CpuUsageManager.process;
 
-			final int totalBarLength = size.width - insets.left - insets.right;
+			final int totalBarLength = size.width - insets.left - insets.right + 1;
 			final int processUsageBarLength = totalBarLength * CpuUsageManager.process / max;
 			final int otherProcessesUsageBarLength = totalBarLength * otherProcesses / max;
 			final int barHeight = Math.max(size.height, getFont().getSize() + 2);
@@ -159,8 +153,10 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 			// label
 			g2.setFont(getFont());
-			final String info = CpuUsageBundle.message("cpu.usage.panel.message.text", CpuUsageManager.process,
-					CpuUsageManager.system);
+//			final String info = CpuUsageBundle.message("cpu.usage.panel.message.text", CpuUsageManager.process,
+//					CpuUsageManager.system);
+			final String info = fixedLengthString(String.valueOf(CpuUsageManager.process), 3) + "% / " + fixedLengthString(String.valueOf(CpuUsageManager.system), 3) + "%";
+			
 			final FontMetrics fontMetrics = g.getFontMetrics();
 			final int infoWidth = fontMetrics.charsWidth(info.toCharArray(), 0, info.length());
 			final int infoHeight = fontMetrics.getAscent();
@@ -174,7 +170,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			// border
 			g2.setStroke(new BasicStroke(1));
 			g2.setColor(JBColor.GRAY);
-			g2.drawRect(1, 0, size.width - 3, size.height - 1);
+			g2.drawRect(1, 0, size.width - 2, size.height - 1);
 
 			g2.dispose();
 		}
@@ -190,6 +186,9 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		}
 	}
 
+	public static String fixedLengthString(String string, int length) {
+		return String.format("%1$" + length + "s", string);
+	}
 	@Override
 	public Dimension getPreferredSize() {
 		final Insets insets = getInsets();
@@ -209,22 +208,27 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		return getPreferredSize();
 	}
 
-	public void updateState() {
+	public boolean updateState() {
+		boolean painted = false;
 		if (!isShowing()) {
-			return;
+			return painted;
 		}
 
 		if (CpuUsageManager.system != myLastTotal || CpuUsageManager.process != myLastUsed) {
 			myLastTotal = CpuUsageManager.system;
 			myLastUsed = CpuUsageManager.process;
-			UIUtil.invokeLaterIfNeeded(() -> {
-				myBufferedImage = null;
-				repaint();
-			});
+			myBufferedImage = null;
+
+			Graphics graphics = getGraphics();
+			if (graphics != null) {
+				paintComponent(graphics);
+				painted = true;
+			}
 
 			setToolTipText(CpuUsageBundle.message("cpu.usage.panel.statistics.message", CpuUsageManager.process,
 					CpuUsageManager.system));
 		}
+		return painted;
 	}
 
 }

@@ -1,12 +1,12 @@
 package krasa.cpu;
 
+import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.intellij.concurrency.JobScheduler;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.sun.management.OperatingSystemMXBean;
 
@@ -24,19 +24,20 @@ public class CpuUsageManager {
 
 	private static java.util.List<CpuUsagePanel> cpuUsagePanelList = new CopyOnWriteArrayList<>();
 
-	static void update() {
+	static synchronized void update() {
 		try {
-			// long start = System.currentTimeMillis();
 
 			system = (int) (OS_BEAN.getSystemCpuLoad() * 100);
 			process = (int) (OS_BEAN.getProcessCpuLoad() * 100); // this shit is expensive!!!
 			// log.info("process" + process + " system=" + system);
 
-			ApplicationManager.getApplication().invokeLater(() -> {
-				for (CpuUsagePanel cpuUsagePanel : cpuUsagePanelList) {
-					cpuUsagePanel.updateState();
-				}
-			});
+			boolean painted = false;
+			for (CpuUsagePanel cpuUsagePanel : cpuUsagePanelList) {
+				painted = painted || cpuUsagePanel.updateState();
+			}
+			if (painted) {
+				Toolkit.getDefaultToolkit().sync();
+			}
 			// System.err.println("updateValues " +(System.currentTimeMillis() - start));
 		} catch (Exception e) {
 			log.error(e);
