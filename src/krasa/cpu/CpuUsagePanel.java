@@ -15,6 +15,8 @@ package krasa.cpu;
  * limitations under the License.
  */
 
+import static com.intellij.ui.ColorUtil.softer;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,9 +42,9 @@ import com.intellij.util.ui.update.UiNotifyConnector;
 public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	@NonNls
 	public static final String WIDGET_ID = "Cpu";
-
-	private static final Color USED_COLOR = JBColor.BLUE.darker().darker().darker();
-	private static final Color UNUSED_COLOR = JBColor.BLUE.darker();
+	private static final Color IDE = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker().darker().darker()
+			: softer((JBColor.CYAN));
+	private static final Color SYSTEM = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker() : JBColor.CYAN.darker();
 
 	private int myLastTotal = -1;
 	private int myLastUsed = -1;
@@ -50,6 +52,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	private boolean myWasPressed;
 
 	public CpuUsagePanel() {
+
 		setOpaque(false);
 		setFocusable(false);
 
@@ -146,12 +149,12 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			g2.setColor(UIUtil.getPanelBackground());
 			g2.fillRect(0, 0, size.width, size.height);
 
-			// gauge (used)
-			g2.setColor(USED_COLOR);
+			// gauge (ide)
+			g2.setColor(IDE);
 			g2.fillRect(xOffset, yOffset, processUsageBarLength, barHeight);
 
-			// gauge (unused)
-			g2.setColor(UNUSED_COLOR);
+			// gauge (system)
+			g2.setColor(SYSTEM);
 			g2.fillRect(xOffset + processUsageBarLength, yOffset, otherProcessesUsageBarLength, barHeight);
 
 			// label
