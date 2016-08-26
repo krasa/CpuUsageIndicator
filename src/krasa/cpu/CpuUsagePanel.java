@@ -79,6 +79,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 	@Override
 	public void dispose() {
+		CpuUsageManager.unregister(CpuUsagePanel.this);
 	}
 
 	@Override
