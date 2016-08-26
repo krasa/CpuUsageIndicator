@@ -19,9 +19,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.lang.management.ManagementFactory;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 
@@ -29,10 +26,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.intellij.concurrency.JobScheduler;
 import com.intellij.ide.ui.UISettings;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -42,24 +36,18 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.update.Activatable;
 import com.intellij.util.ui.update.UiNotifyConnector;
-import com.sun.management.OperatingSystemMXBean;
 
 public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
-	private static final Logger log = Logger.getInstance(CpuUsagePanel.class);
 	@NonNls
 	public static final String WIDGET_ID = "Cpu";
 
 	private static final Color USED_COLOR = JBColor.BLUE.darker();
 	private static final Color UNUSED_COLOR = JBColor.BLUE.darker().darker().darker();
 
-	private int system = 0;
-	private int process = 0;
 	private int myLastTotal = -1;
 	private int myLastUsed = -1;
 	private Image myBufferedImage;
 	private boolean myWasPressed;
-	private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(
-			OperatingSystemMXBean.class);
 
 	public CpuUsagePanel() {
 		setOpaque(false);
@@ -67,7 +55,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 		addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				update();
+				CpuUsageManager.update();
 			}
 		});
 
@@ -75,20 +63,15 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		updateUI();
 
 		new UiNotifyConnector(this, new Activatable() {
-			private ScheduledFuture<?> myFuture;
 
 			@Override
 			public void showNotify() {
-				myFuture = JobScheduler.getScheduler().scheduleWithFixedDelay(CpuUsagePanel.this::update, 1, 1,
-						TimeUnit.SECONDS);
+				CpuUsageManager.register(CpuUsagePanel.this);
 			}
 
 			@Override
 			public void hideNotify() {
-				if (myFuture != null) {
-					myFuture.cancel(true);
-					myFuture = null;
-				}
+				CpuUsageManager.unregister(CpuUsagePanel.this);
 			}
 		});
 
@@ -150,10 +133,10 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			final Graphics2D g2 = (Graphics2D) myBufferedImage.getGraphics().create();
 
 			final int max = 100;
-			final int otherProcesses = system - process;
+			final int otherProcesses = CpuUsageManager.system - CpuUsageManager.process;
 
 			final int totalBarLength = size.width - insets.left - insets.right;
-			final int processUsageBarLength = totalBarLength * process / max;
+			final int processUsageBarLength = totalBarLength * CpuUsageManager.process / max;
 			final int otherProcessesUsageBarLength = totalBarLength * otherProcesses / max;
 			final int barHeight = Math.max(size.height, getFont().getSize() + 2);
 			final int yOffset = (size.height - barHeight) / 2;
@@ -173,18 +156,19 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 			// label
 			g2.setFont(getFont());
-			final String info = CpuUsageBundle.message("cpu.usage.panel.message.text", process, system);
+			final String info = CpuUsageBundle.message("cpu.usage.panel.message.text", CpuUsageManager.process,
+					CpuUsageManager.system);
 			final FontMetrics fontMetrics = g.getFontMetrics();
 			final int infoWidth = fontMetrics.charsWidth(info.toCharArray(), 0, info.length());
 			final int infoHeight = fontMetrics.getAscent();
 			UISettings.setupAntialiasing(g2);
-			
+
 			final Color fg = pressed ? UIUtil.getLabelDisabledForeground() : JBColor.foreground();
 			g2.setColor(fg);
 			g2.drawString(info, xOffset + (totalBarLength - infoWidth) / 2,
 					yOffset + infoHeight + (barHeight - infoHeight) / 2 - 1);
 
-			//border
+			// border
 			g2.setStroke(new BasicStroke(1));
 			g2.setColor(JBColor.GRAY);
 			g2.drawRect(1, 0, size.width - 3, size.height - 1);
@@ -222,34 +206,21 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		return getPreferredSize();
 	}
 
-	private void updateState() {
+	public void updateState() {
 		if (!isShowing()) {
 			return;
 		}
 
-		if (system != myLastTotal || process != myLastUsed) {
-			myLastTotal = system;
-			myLastUsed = process;
+		if (CpuUsageManager.system != myLastTotal || CpuUsageManager.process != myLastUsed) {
+			myLastTotal = CpuUsageManager.system;
+			myLastUsed = CpuUsageManager.process;
 			UIUtil.invokeLaterIfNeeded(() -> {
 				myBufferedImage = null;
 				repaint();
 			});
 
-			setToolTipText(CpuUsageBundle.message("cpu.usage.panel.statistics.message", process, system));
-		}
-	}
-
-	private void update() {
-		try {
-//		long start = System.currentTimeMillis();
-
-			system = (int) (OS_BEAN.getSystemCpuLoad() * 100);
-			process = (int) (OS_BEAN.getProcessCpuLoad() * 100); // this shit is expensive!!!
-
-//		System.err.println("updateValues " +(System.currentTimeMillis() - start));
-			ApplicationManager.getApplication().invokeLater(CpuUsagePanel.this::updateState);
-		} catch (Exception e) {
-			log.error(e);
+			setToolTipText(CpuUsageBundle.message("cpu.usage.panel.statistics.message", CpuUsageManager.process,
+					CpuUsageManager.system));
 		}
 	}
 
