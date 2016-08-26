@@ -44,10 +44,10 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			: softer((JBColor.CYAN));
 	private static final Color SYSTEM = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker() : JBColor.CYAN.darker();
 
-	private int myLastTotal = -1;
-	private int myLastUsed = -1;
-	private Image myBufferedImage;
-	private boolean myWasPressed;
+	private volatile int myLastTotal = -1;
+	private volatile int myLastUsed = -1;
+	private volatile Image myBufferedImage;
+	private volatile boolean myWasPressed;
 
 	public CpuUsagePanel() {
 
@@ -211,6 +211,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	public boolean updateState() {
 		boolean painted = false;
 		if (!isShowing()) {
+			//noinspection ConstantConditions
 			return painted;
 		}
 
