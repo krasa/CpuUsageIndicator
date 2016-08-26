@@ -2,7 +2,7 @@ package krasa.cpu;
 
 import java.awt.*;
 import java.lang.management.ManagementFactory;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +22,7 @@ public class CpuUsageManager {
 	private static ScheduledFuture<?> scheduledFuture = JobScheduler.getScheduler().scheduleWithFixedDelay(
 			CpuUsageManager::update, 1, 1, TimeUnit.SECONDS);
 
-	private static java.util.List<CpuUsagePanel> cpuUsagePanelList = new CopyOnWriteArrayList<>();
+	private static java.util.Set<CpuUsagePanel> cpuUsagePanelList = new CopyOnWriteArraySet<>();
 
 	static synchronized void update() {
 		try {
