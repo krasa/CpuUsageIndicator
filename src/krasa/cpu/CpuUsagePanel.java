@@ -208,7 +208,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		return getPreferredSize();
 	}
 
-	public boolean updateState() {
+	public boolean update() {
 		boolean painted = false;
 		if (!isShowing()) {
 			//noinspection ConstantConditions

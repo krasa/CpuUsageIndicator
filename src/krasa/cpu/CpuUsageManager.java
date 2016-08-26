@@ -33,12 +33,11 @@ public class CpuUsageManager {
 
 			boolean painted = false;
 			for (CpuUsagePanel cpuUsagePanel : cpuUsagePanelList) {
-				painted = cpuUsagePanel.updateState() || painted;
+				painted = cpuUsagePanel.update() || painted;
 			}
 			if (painted) {
 				Toolkit.getDefaultToolkit().sync();
 			}
-			// System.err.println("updateValues " +(System.currentTimeMillis() - start));
 		} catch (Exception e) {
 			log.error(e);
 		}
