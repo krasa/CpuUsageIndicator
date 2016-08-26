@@ -41,8 +41,8 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	@NonNls
 	public static final String WIDGET_ID = "Cpu";
 
-	private static final Color USED_COLOR = JBColor.BLUE.darker();
-	private static final Color UNUSED_COLOR = JBColor.BLUE.darker().darker().darker();
+	private static final Color USED_COLOR = JBColor.BLUE.darker().darker().darker();
+	private static final Color UNUSED_COLOR = JBColor.BLUE.darker();
 
 	private int myLastTotal = -1;
 	private int myLastUsed = -1;
