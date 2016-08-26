@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,13 +44,15 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	private static final Color IDE = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker().darker().darker()
 			: softer((JBColor.CYAN));
 	private static final Color SYSTEM = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker() : JBColor.CYAN.darker();
+	private final String projectName;
 
 	private volatile int myLastTotal = -1;
 	private volatile int myLastUsed = -1;
 	private volatile Image myBufferedImage;
 	private volatile boolean myWasPressed;
 
-	public CpuUsagePanel() {
+	public CpuUsagePanel(String projectName) {
+		this.projectName = projectName;
 
 		setOpaque(false);
 		setFocusable(false);
@@ -232,4 +235,10 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		return painted;
 	}
 
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.append("projectName", projectName)
+				.toString();
+	}
 }
