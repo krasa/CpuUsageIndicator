@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.concurrency.JobScheduler;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
@@ -44,16 +45,17 @@ import com.intellij.util.ui.update.UiNotifyConnector;
 import com.sun.management.OperatingSystemMXBean;
 
 public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
+	private static final Logger log = Logger.getInstance(CpuUsagePanel.class);
 	@NonNls
 	public static final String WIDGET_ID = "Cpu";
 
 	private static final Color USED_COLOR = JBColor.BLUE.darker();
 	private static final Color UNUSED_COLOR = JBColor.BLUE.darker().darker().darker();
 
-	private long system = 0;
-	private long process = 0;
-	private long myLastTotal = -1;
-	private long myLastUsed = -1;
+	private int system = 0;
+	private int process = 0;
+	private int myLastTotal = -1;
+	private int myLastUsed = -1;
 	private Image myBufferedImage;
 	private boolean myWasPressed;
 	private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(
@@ -65,7 +67,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 		addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateState();
+				update();
 			}
 		});
 
@@ -77,7 +79,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 			@Override
 			public void showNotify() {
-				myFuture = JobScheduler.getScheduler().scheduleWithFixedDelay(CpuUsagePanel.this::updateValues, 1, 1,
+				myFuture = JobScheduler.getScheduler().scheduleWithFixedDelay(CpuUsagePanel.this::update, 1, 1,
 						TimeUnit.SECONDS);
 			}
 
@@ -147,12 +149,12 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			myBufferedImage = UIUtil.createImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
 			final Graphics2D g2 = (Graphics2D) myBufferedImage.getGraphics().create();
 
-			final long max = 100;
-			final long otherProcesses = system - process;
+			final int max = 100;
+			final int otherProcesses = system - process;
 
 			final int totalBarLength = size.width - insets.left - insets.right;
-			final int processUsageBarLength = (int) (totalBarLength * process / max);
-			final int otherProcessesUsageBarLength = (int) (totalBarLength * otherProcesses / max);
+			final int processUsageBarLength = totalBarLength * process / max;
+			final int otherProcessesUsageBarLength = totalBarLength * otherProcesses / max;
 			final int barHeight = Math.max(size.height, getFont().getSize() + 2);
 			final int yOffset = (size.height - barHeight) / 2;
 			final int xOffset = insets.left;
@@ -237,14 +239,18 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		}
 	}
 
-	private void updateValues() {
+	private void update() {
+		try {
 //		long start = System.currentTimeMillis();
 
-		system = (long) (OS_BEAN.getSystemCpuLoad() * 100);
-		process = (long) (OS_BEAN.getProcessCpuLoad() * 100); //this shit is expensive!!!
+			system = (int) (OS_BEAN.getSystemCpuLoad() * 100);
+			process = (int) (OS_BEAN.getProcessCpuLoad() * 100); // this shit is expensive!!!
 
 //		System.err.println("updateValues " +(System.currentTimeMillis() - start));
-		ApplicationManager.getApplication().invokeLater(CpuUsagePanel.this::updateState);
+			ApplicationManager.getApplication().invokeLater(CpuUsagePanel.this::updateState);
+		} catch (Exception e) {
+			log.error(e);
+		}
 	}
 
 }
