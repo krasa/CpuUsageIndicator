@@ -46,8 +46,8 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	private static final Color SYSTEM = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker() : JBColor.CYAN.darker();
 	private final String projectName;
 
-	private volatile int myLastTotal = -1;
-	private volatile int myLastUsed = -1;
+	private volatile int myLastSystem = -1;
+	private volatile int myLastProcess = -1;
 	private volatile Image myBufferedImage;
 	private volatile boolean myWasPressed;
 
@@ -125,13 +125,14 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		final boolean pressed = getModel().isPressed();
 		final boolean stateChanged = myWasPressed != pressed;
 		myWasPressed = pressed;
+		Image bufferedImage = myBufferedImage;
 
-		if (myBufferedImage == null || stateChanged) {
+		if (bufferedImage == null || stateChanged) {
 			final Dimension size = getSize();
 			final Insets insets = getInsets();
 
-			myBufferedImage = UIUtil.createImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
-			final Graphics2D g2 = (Graphics2D) myBufferedImage.getGraphics().create();
+			bufferedImage = UIUtil.createImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+			final Graphics2D g2 = (Graphics2D) bufferedImage.getGraphics().create();
 
 			final int max = 100;
 			final int otherProcesses = CpuUsageManager.system - CpuUsageManager.process;
@@ -177,9 +178,10 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			g2.drawRect(1, 0, size.width - 2, size.height - 1);
 
 			g2.dispose();
+			myBufferedImage = bufferedImage;
 		}
 
-		UIUtil.drawImage(g, myBufferedImage, 0, 0, null);
+		UIUtil.drawImage(g, bufferedImage, 0, 0, null);
 		if (UIUtil.isRetina() && !UIUtil.isUnderDarcula()) {
 			Graphics2D g2 = (Graphics2D) g.create(0, 0, getWidth(), getHeight());
 			g2.scale(0.5, 0.5);
@@ -219,9 +221,9 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			return painted;
 		}
 
-		if (CpuUsageManager.system != myLastTotal || CpuUsageManager.process != myLastUsed) {
-			myLastTotal = CpuUsageManager.system;
-			myLastUsed = CpuUsageManager.process;
+		if (CpuUsageManager.system != myLastSystem || CpuUsageManager.process != myLastProcess) {
+			myLastSystem = CpuUsageManager.system;
+			myLastProcess = CpuUsageManager.process;
 			myBufferedImage = null;
 
 			Graphics graphics = getGraphics();
