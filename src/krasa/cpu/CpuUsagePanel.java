@@ -56,6 +56,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 		setOpaque(false);
 		setFocusable(false);
+		setToolTipText("IDE CPU usage / System CPU usage");
 
 		addActionListener(e -> CpuUsageManager.update());
 
@@ -241,8 +242,6 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 				painted = true;
 			}
 
-			setToolTipText(CpuUsageBundle.message("cpu.usage.panel.statistics.message", CpuUsageManager.process,
-					CpuUsageManager.system));
 		}
 		return painted;
 	}
