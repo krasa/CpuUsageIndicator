@@ -1,7 +1,7 @@
 <idea-plugin version="2">
   <id>krasa.CpuUsageIndicator</id>
   <name>CPU Usage Indicator</name>
-  <version>1.2</version>
+	<version>1.3</version>
   <vendor url="https://github.com/krasa/CpuUsageIndicator" email="vojta.krasa@gmail.com">Vojtech
  		Krasa
  	</vendor>
@@ -10,7 +10,8 @@
       CPU Usage Indicator in the status bar, just like the Memory Indicator.<br/>
       <br/>
       Note:<br/>
-      -it is painted on background thread, not EDT, so it will update even when the GUI is stuck<br/>
+      -it is painted in a background thread, not EDT, so it will update even when the GUI is stuck<br/>
+      -getting the process usage is a quite expensive operation :(<br/>
     ]]></description>
 
   <change-notes><![CDATA[

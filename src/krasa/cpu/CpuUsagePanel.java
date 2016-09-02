@@ -1,4 +1,5 @@
 package krasa.cpu;
+
 /*
  * Copyright 2000-2015 JetBrains s.r.o.
  *
@@ -15,18 +16,6 @@ package krasa.cpu;
  * limitations under the License.
  */
 
-import static com.intellij.ui.ColorUtil.softer;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
-import javax.swing.*;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.wm.CustomStatusBarWidget;
 import com.intellij.openapi.wm.StatusBar;
@@ -37,10 +26,20 @@ import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.update.Activatable;
 import com.intellij.util.ui.update.UiNotifyConnector;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+
+import static com.intellij.ui.ColorUtil.softer;
 
 public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	@NonNls
-	public static final String WIDGET_ID = "Cpu";
+	public static final String WIDGET_ID = "krasa.cpu.CpuUsagePanel";
 	private static final Color IDE = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker().darker().darker()
 			: softer((JBColor.CYAN));
 	private static final Color SYSTEM = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker() : JBColor.CYAN.darker();
@@ -161,10 +160,10 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 			// label
 			g2.setFont(getFont());
-//			final String info = CpuUsageBundle.message("cpu.usage.panel.message.text", CpuUsageManager.process,
-//					CpuUsageManager.system);
+			// final String info = CpuUsageBundle.message("cpu.usage.panel.message.text", CpuUsageManager.process,
+			// CpuUsageManager.system);
 			final String info = fixedLengthString(String.valueOf(process), 3) + "% / " + fixedLengthString(String.valueOf(system), 3) + "%";
-			
+
 			final FontMetrics fontMetrics = g.getFontMetrics();
 			final int infoWidth = fontMetrics.charsWidth(info.toCharArray(), 0, info.length());
 			final int infoHeight = fontMetrics.getAscent();
@@ -227,7 +226,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	public boolean update() {
 		boolean painted = false;
 		if (!isShowing()) {
-			//noinspection ConstantConditions
+			// noinspection ConstantConditions
 			return painted;
 		}
 
@@ -248,8 +247,6 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this)
-				.append("projectName", projectName)
-				.toString();
+		return new ToStringBuilder(this).append("projectName", projectName).toString();
 	}
 }

@@ -1,14 +1,16 @@
 package krasa.cpu;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.intellij.openapi.components.ProjectComponent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.openapi.wm.impl.status.MemoryUsagePanel;
+import org.jetbrains.annotations.NotNull;
 
 public class CpuUsageProjectComponent implements ProjectComponent {
 	private final Project project;
+	private CpuUsagePanel statusBarWidget;
 
 	public CpuUsageProjectComponent(Project project) {
 		this.project = project;
@@ -31,12 +33,16 @@ public class CpuUsageProjectComponent implements ProjectComponent {
 	@Override
 	public void projectOpened() {
 		final StatusBar statusBar = WindowManager.getInstance().getIdeFrame(project).getStatusBar();
-		final CpuUsagePanel statusBarWidget = new CpuUsagePanel(project.getName());
-		statusBar.addWidget(statusBarWidget);
+		statusBarWidget = new CpuUsagePanel(project.getName());
+		statusBar.addWidget(statusBarWidget, "before " + MemoryUsagePanel.WIDGET_ID);
 	}
 
 	@Override
 	public void projectClosed() {
-		// called when project is being closed
+		if (statusBarWidget != null) {
+			final StatusBar statusBar = WindowManager.getInstance().getIdeFrame(project).getStatusBar();
+			statusBar.removeWidget(CpuUsagePanel.WIDGET_ID);
+			Disposer.dispose(statusBarWidget);
+		}
 	}
 }
