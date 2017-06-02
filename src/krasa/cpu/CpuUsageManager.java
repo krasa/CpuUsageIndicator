@@ -44,6 +44,7 @@ public class CpuUsageManager {
 				log.error(e);
 				throw e;
 			} else {
+				log.info(e);
 				//one fail tolerance for strange errors
 				broken = true;
 				try {
