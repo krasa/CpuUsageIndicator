@@ -177,7 +177,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			// border
 			g2.setStroke(new BasicStroke(1));
 			g2.setColor(JBColor.GRAY);
-			g2.drawRect(1, 0, size.width - 2, size.height - 1);
+			g2.drawRect(1, 0, size.width - 3, size.height - 1);
 
 			g2.dispose();
 			myBufferedImage = bufferedImage;
