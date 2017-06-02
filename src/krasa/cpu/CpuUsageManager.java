@@ -1,26 +1,27 @@
 package krasa.cpu;
 
+import com.intellij.concurrency.JobScheduler;
+import com.intellij.openapi.diagnostic.Logger;
+import com.sun.management.OperatingSystemMXBean;
+
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.intellij.concurrency.JobScheduler;
-import com.intellij.openapi.diagnostic.Logger;
-import com.sun.management.OperatingSystemMXBean;
-
 public class CpuUsageManager {
 	private static final Logger log = Logger.getInstance(CpuUsageManager.class);
 
 	private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(
-			OperatingSystemMXBean.class);
+		OperatingSystemMXBean.class);
 
 	volatile static int system = 0;
 	volatile static int process = 0;
+	static boolean broken = false;
 
 	private static ScheduledFuture<?> scheduledFuture = JobScheduler.getScheduler().scheduleWithFixedDelay(
-			CpuUsageManager::update, 1, 1, TimeUnit.SECONDS);
+		CpuUsageManager::update, 1, 1, TimeUnit.SECONDS);
 
 	private static java.util.Set<CpuUsagePanel> cpuUsagePanelList = new CopyOnWriteArraySet<>();
 
@@ -37,7 +38,20 @@ public class CpuUsageManager {
 			if (painted) {
 				Toolkit.getDefaultToolkit().sync();
 			}
+			broken = false;
 		} catch (Exception e) {
+			if (broken) {
+				log.error(e);
+				throw e;
+			} else {
+				//one fail tolerance for strange errors
+				broken = true;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+				}
+			}
+		} catch (Throwable e) {
 			log.error(e);
 			throw e;
 		}
