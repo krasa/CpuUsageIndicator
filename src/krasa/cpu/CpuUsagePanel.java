@@ -40,9 +40,11 @@ import static com.intellij.ui.ColorUtil.softer;
 public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	@NonNls
 	public static final String WIDGET_ID = "krasa.cpu.CpuUsagePanel";
-	private static final Color IDE = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker().darker().darker()
-			: softer((JBColor.CYAN));
-	private static final Color SYSTEM = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker() : JBColor.CYAN.darker();
+	private static final String SAMPLE_STRING = "100% / 100%";
+
+	private Color systemColor;
+	private Color ideColor;
+
 	private final String projectName;
 
 	private volatile int myLastSystem = -1;
@@ -51,6 +53,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	private volatile boolean myWasPressed;
 
 	public CpuUsagePanel(String projectName) {
+		refreshColors();
 		this.projectName = projectName;
 
 		setOpaque(false);
@@ -107,8 +110,16 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 	@Override
 	public void updateUI() {
+		refreshColors();
+		myBufferedImage = null;
 		super.updateUI();
 		setFont(getWidgetFont());
+		setBorder(BorderFactory.createEmptyBorder());
+	}
+
+	private void refreshColors() {
+		systemColor = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker() : JBColor.CYAN.darker();
+		ideColor = UIUtil.isUnderDarcula() ? JBColor.BLUE.darker().darker().darker() : softer((JBColor.CYAN));
 	}
 
 	private static Font getWidgetFont() {
@@ -131,7 +142,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			final Dimension size = getSize();
 			final Insets insets = getInsets();
 
-			bufferedImage = UIUtil.createImage(size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+			bufferedImage = UIUtil.createImage(g, size.width, size.height, BufferedImage.TYPE_INT_ARGB);
 			final Graphics2D g2 = (Graphics2D) bufferedImage.getGraphics().create();
 
 			final int max = 100;
@@ -139,7 +150,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			int process = CpuUsageManager.process;
 			final int otherProcesses = system - process;
 
-			final int totalBarLength = size.width - insets.left - insets.right + 1;
+			final int totalBarLength = size.width - insets.left - insets.right - 3;
 			final int processUsageBarLength = totalBarLength * process / max;
 			final int otherProcessesUsageBarLength = totalBarLength * otherProcesses / max;
 			final int barHeight = Math.max(size.height, getFont().getSize() + 2);
@@ -151,12 +162,12 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			g2.fillRect(0, 0, size.width, size.height);
 
 			// gauge (ide)
-			g2.setColor(IDE);
-			g2.fillRect(xOffset, yOffset, processUsageBarLength, barHeight);
+			g2.setColor(ideColor);
+			g2.fillRect(xOffset + 1, yOffset, processUsageBarLength + 1, barHeight);
 
 			// gauge (system)
-			g2.setColor(SYSTEM);
-			g2.fillRect(xOffset + processUsageBarLength, yOffset, otherProcessesUsageBarLength, barHeight);
+			g2.setColor(systemColor);
+			g2.fillRect(xOffset + processUsageBarLength + 1, yOffset, otherProcessesUsageBarLength + 1, barHeight);
 
 			// label
 			g2.setFont(getFont());
@@ -172,12 +183,12 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 			final Color fg = pressed ? UIUtil.getLabelDisabledForeground() : JBColor.foreground();
 			g2.setColor(fg);
 			g2.drawString(info, xOffset + (totalBarLength - infoWidth) / 2,
-					yOffset + infoHeight + (barHeight - infoHeight) / 2 - 1);
+				yOffset + infoHeight + (barHeight - infoHeight) / 2 - 1);
 
 			// border
 			g2.setStroke(new BasicStroke(1));
 			g2.setColor(JBColor.GRAY);
-			g2.drawRect(1, 0, size.width - 3, size.height - 1);
+			g2.drawRect(0, 0, size.width - 2, size.height - 1);
 
 			g2.dispose();
 			myBufferedImage = bufferedImage;
@@ -191,11 +202,12 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	 */
 	private synchronized void draw(Graphics g, Image bufferedImage) {
 		UIUtil.drawImage(g, bufferedImage, 0, 0, null);
-		if (UIUtil.isRetina() && !UIUtil.isUnderDarcula()) {
+		if (UIUtil.isJreHiDPI((Graphics2D) g) && !UIUtil.isUnderDarcula()) {
 			Graphics2D g2 = (Graphics2D) g.create(0, 0, getWidth(), getHeight());
-			g2.scale(0.5, 0.5);
+			float s = JBUI.sysScale(g2);
+			g2.scale(1 / s, 1 / s);
 			g2.setColor(UIUtil.isUnderIntelliJLaF() ? Gray.xC9 : Gray.x91);
-			g2.drawLine(0, 0, 2 * getWidth(), 0);
+			g2.drawLine(0, 0, (int) (s * getWidth()), 0);
 			g2.scale(1, 1);
 			g2.dispose();
 		}
@@ -204,11 +216,12 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	public static String fixedLengthString(String string, int length) {
 		return String.format("%1$" + length + "s", string);
 	}
+
 	@Override
 	public Dimension getPreferredSize() {
 		final Insets insets = getInsets();
-		int width = getFontMetrics(getWidgetFont()).stringWidth("100% / 100%") + insets.left + insets.right
-				+ JBUI.scale(2);
+		int width = getFontMetrics(getWidgetFont()).stringWidth(SAMPLE_STRING) + insets.left + insets.right
+			+ JBUI.scale(2);
 		int height = getFontMetrics(getWidgetFont()).getHeight() + insets.top + insets.bottom + JBUI.scale(2);
 		return new Dimension(width, height);
 	}
