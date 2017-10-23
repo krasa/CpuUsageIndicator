@@ -7,7 +7,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +15,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
 public class TakeThreadDumpAction extends DumbAwareAction {
-
 	@Override
 	public void actionPerformed(AnActionEvent e) {
 		Project eventProject = getEventProject(e);
@@ -32,7 +30,7 @@ public class TakeThreadDumpAction extends DumbAwareAction {
 	private static int ourCurrentBuffer = 0;
 
 	private static int nextBufferIndex() {
-		ourCurrentBuffer = (ourCurrentBuffer % Registry.intValue("krasa.cpu.diagnostic.dumps", 5)) + 1;
+		ourCurrentBuffer = (ourCurrentBuffer % 5) + 1;
 		return ourCurrentBuffer;
 	}
 	private static void doCreateNewScratch(@NotNull Project project, @NotNull String text) {
