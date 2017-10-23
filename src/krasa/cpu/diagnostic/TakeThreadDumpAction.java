@@ -7,6 +7,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.PathUtil;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +29,14 @@ public class TakeThreadDumpAction extends DumbAwareAction {
 		doCreateNewScratch(eventProject, rawDump);
 	}
 
+	private static int ourCurrentBuffer = 0;
+
+	private static int nextBufferIndex() {
+		ourCurrentBuffer = (ourCurrentBuffer % Registry.intValue("krasa.cpu.diagnostic.dumps", 5)) + 1;
+		return ourCurrentBuffer;
+	}
 	private static void doCreateNewScratch(@NotNull Project project, @NotNull String text) {
-		VirtualFile f = ScratchRootType.getInstance().createScratchFile(project, PathUtil.makeFileName("threadDump", "txt"), PlainTextLanguage.INSTANCE, text, ScratchFileService.Option.create_if_missing);
+		VirtualFile f = ScratchRootType.getInstance().createScratchFile(project, PathUtil.makeFileName("threadDump" + nextBufferIndex(), "txt"), PlainTextLanguage.INSTANCE, text, ScratchFileService.Option.create_if_missing);
 		if (f != null) {
 			FileEditorManager.getInstance(project).openFile(f, true);
 		}
