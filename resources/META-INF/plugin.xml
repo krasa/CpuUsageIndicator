@@ -1,41 +1,54 @@
 <idea-plugin version="2">
-  <id>krasa.CpuUsageIndicator</id>
-  <name>CPU Usage Indicator</name>
-    <version>1.6</version>
-  <vendor url="https://github.com/krasa/CpuUsageIndicator" email="vojta.krasa@gmail.com">Vojtech
- 		Krasa
- 	</vendor>
+    <id>krasa.CpuUsageIndicator</id>
+    <name>CPU Usage Indicator</name>
+    <version>1.7</version>
+    <vendor url="https://github.com/krasa/CpuUsageIndicator" email="vojta.krasa@gmail.com">Vojtech
+        Krasa
+    </vendor>
 
-  <description><![CDATA[
+    <description><![CDATA[
       CPU Usage Indicator in the status bar, just like the Memory Indicator.<br/>
+      Also contains actions for performance problems diagnostics.<br/>
+      - left click on the panel generates a thread dump - useful when the IDE is doing something on the background and you want to know what.<br/>
+      - configuration GUI for Performance Watcher (IDE's bundled automatic thread dumper for frozen UI). 
+      You can configure it to dump even for shorter freezes than is the default: 5 second.  
       <br/>
       Note:<br/>
       -it is painted in a background thread, not EDT, so it will update even when the GUI is stuck<br/>
       -getting the process usage is a quite expensive operation :(<br/>
     ]]></description>
 
-  <change-notes><![CDATA[
+    <change-notes><![CDATA[
     ]]>
-  </change-notes>
+    </change-notes>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="171.4424"/>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="172.450"/>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <depends>com.intellij.modules.lang</depends>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.lang</depends>
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
-  </extensions>
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationConfigurable id="PerformanceWatcherSettings" displayName="Performance Watcher"
+                                 instance="krasa.cpu.diagnostic.PerformanceWatcherConfigurable"/>
+    </extensions>
 
-  <actions>
-    <!-- Add your actions here -->
-  </actions>
+    <actions>
+        <!-- Add your actions here -->
+        <action id="TakeThreadDump" class="krasa.cpu.diagnostic.TakeThreadDumpAction" text="Take a Thread Dump"
+                description="Generate IDE&#39;s Thread Dump as Scratch">
+        </action>
+        <action id="OpenLastUiFreezeThreadDump" class="krasa.cpu.diagnostic.OpenLastEdtFreezeDumpAction"
+                text="Open Last UI Freeze Thread Dump"/>
 
-  <project-components>
-    <component>
-      <implementation-class>krasa.cpu.CpuUsageProjectComponent</implementation-class>
-    </component>
-  </project-components>
+        <action id="OpenPerformanceWatcherSettings" class="krasa.cpu.diagnostic.OpenPerformanceWatcherSettings"
+                text="Open Performance Watcher Settings"/>
+    </actions>
+
+    <project-components>
+        <component>
+            <implementation-class>krasa.cpu.CpuUsageProjectComponent</implementation-class>
+        </component>
+    </project-components>
 </idea-plugin>

@@ -36,7 +36,7 @@ public class CpuUsageProjectComponent implements ProjectComponent {
 	public void projectOpened() {
 		ideFrame = WindowManager.getInstance().getIdeFrame(this.project);
 		final StatusBar statusBar = ideFrame.getStatusBar();
-		statusBarWidget = new CpuUsagePanel(project.getName());
+		statusBarWidget = new CpuUsagePanel(project);
 		statusBar.addWidget(statusBarWidget, "before " + MemoryUsagePanel.WIDGET_ID);
 	}
 
