@@ -9,7 +9,7 @@
     <description><![CDATA[
       CPU Usage Indicator in the status bar, just like the Memory Indicator.<br/>
       Also contains actions for performance problems diagnostics.<br/>
-      - left click on the panel generates a thread dump - useful when the IDE is doing something on the background and you want to know what.<br/>
+      - left click on the panel generates a thread dump (useful when the IDE is doing something on the background and you want to know what).<br/>
       - configuration GUI for Performance Watcher (IDE's bundled automatic thread dumper for frozen UI). 
       You can configure it to dump even for shorter freezes than is the default: 5 second.  
       <br/>
