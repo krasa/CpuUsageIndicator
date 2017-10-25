@@ -9,7 +9,7 @@ You can configure it to dump even for shorter freezes than is the default: 5 sec
 
 Note:<br/>
 -it is painted in a background thread, not EDT, so it will update even when the GUI is stuck<br/>
--getting the process usage is a quite expensive operation :(<br/>
+-getting the process usage is a quite expensive operation (5ms on i7-6700k@4,2GHz on Win10, 100x more than getting the system usage) :(<br/>
 
 
 ![screenshot](https://github.com/krasa/CpuUsageIndicator/blob/master/cpuUsage.png)
