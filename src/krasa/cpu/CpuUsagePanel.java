@@ -18,7 +18,9 @@ package krasa.cpu;
 
 import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.UISettings;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -36,7 +38,6 @@ import com.intellij.util.ui.update.UiNotifyConnector;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -90,18 +91,18 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		MouseAdapter mouseAdapter = new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (SwingUtilities.isLeftMouseButton(e)) {
-					CpuUsageManager.update();
-					final DataContext context = DataManager.getInstance().getDataContext(CpuUsagePanel.this);
-					ActionManager.getInstance().getAction("TakeThreadDump").actionPerformed(new AnActionEvent(e, context, ActionPlaces.UNKNOWN, new Presentation(""), ActionManager.getInstance(), 0));
-				} else if (SwingUtilities.isRightMouseButton(e)) {
-					final DataContext context = DataManager.getInstance().getDataContext(CpuUsagePanel.this);
-					ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(null, getActionGroup(), context, JBPopupFactory.ActionSelectionAid.MNEMONICS, false);
+//				if (SwingUtilities.isLeftMouseButton(e)) {
+//					CpuUsageManager.update();
+//					final DataContext context = DataManager.getInstance().getDataContext(CpuUsagePanel.this);
+//					ActionManager.getInstance().getAction("TakeThreadDump").actionPerformed(new AnActionEvent(e, context, ActionPlaces.UNKNOWN, new Presentation(""), ActionManager.getInstance(), 0));
+//				} else if (SwingUtilities.isRightMouseButton(e)) {
+				final DataContext context = DataManager.getInstance().getDataContext(CpuUsagePanel.this);
+				ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(null, getActionGroup(), context, JBPopupFactory.ActionSelectionAid.MNEMONICS, false);
 
-					Dimension dimension = popup.getContent().getPreferredSize();
-					Point at = new Point(0, -dimension.height);
-					popup.show(new RelativePoint(e.getComponent(), at));
-				}
+				Dimension dimension = popup.getContent().getPreferredSize();
+				Point at = new Point(0, -dimension.height);
+				popup.show(new RelativePoint(e.getComponent(), at));
+//				}
 			}
 		};
 		addMouseListener(mouseAdapter);
@@ -125,11 +126,6 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	public void install(@NotNull StatusBar statusBar) {
 	}
 
-	@Override
-	@Nullable
-	public WidgetPresentation getPresentation(@NotNull PlatformType type) {
-		return null;
-	}
 
 	@Override
 	@NotNull
@@ -176,6 +172,11 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 		if (bufferedImage == null || stateChanged) {
 			final Dimension size = getSize();
+			//rare error
+			if (size.width < 0 || size.height < 0) {
+				return;
+			}
+
 			final Insets insets = getInsets();
 
 			bufferedImage = UIUtil.createImage(g, size.width, size.height, BufferedImage.TYPE_INT_ARGB);

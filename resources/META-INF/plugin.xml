@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>krasa.CpuUsageIndicator</id>
     <name>CPU Usage Indicator</name>
-    <version>1.8</version>
+    <version>1.9</version>
     <vendor url="https://github.com/krasa/CpuUsageIndicator" email="vojta.krasa@gmail.com">Vojtech
         Krasa
     </vendor>
@@ -23,7 +23,7 @@
     </change-notes>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="172.450"/>
+    <idea-version since-build="201.000"/>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -32,6 +32,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationConfigurable id="PerformanceWatcherSettings" displayName="Performance Watcher"
                                  instance="krasa.cpu.diagnostic.PerformanceWatcherConfigurable"/>
+        <statusBarWidgetFactory id="krasaCpuUsageWidget" implementation="krasa.cpu.CpuWidgetFactory"
+                                order="before memoryUsageWidget"/>
     </extensions>
 
     <actions>
@@ -46,9 +48,4 @@
                 text="Open Performance Watcher Settings"/>
     </actions>
 
-    <project-components>
-        <component>
-            <implementation-class>krasa.cpu.CpuUsageProjectComponent</implementation-class>
-        </component>
-    </project-components>
 </idea-plugin>
