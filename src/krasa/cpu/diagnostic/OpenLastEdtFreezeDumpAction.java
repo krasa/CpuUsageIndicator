@@ -33,7 +33,7 @@ public class OpenLastEdtFreezeDumpAction extends DumbAwareAction {
 
 
 			if (lastFilePath.isPresent()) {
-				Optional<Path> first = Files.list(lastFilePath.get()).findFirst();
+				Optional<Path> first = Files.list(lastFilePath.get()).filter(path -> path.getFileName().toString().startsWith("threadDump-")).findFirst();
 				first.ifPresent(path -> {
 					VirtualFile fileByIoFile = LocalFileSystem.getInstance().findFileByIoFile(path.toFile());
 					if (fileByIoFile != null) {
