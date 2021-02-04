@@ -30,7 +30,10 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.StatusBarWidget;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.JreHiDpiUtil;
 import com.intellij.ui.awt.RelativePoint;
+import com.intellij.ui.scale.JBUIScale;
+import com.intellij.util.ui.ImageUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import com.intellij.util.ui.update.Activatable;
@@ -179,7 +182,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 
 			final Insets insets = getInsets();
 
-			bufferedImage = UIUtil.createImage(g, size.width, size.height, BufferedImage.TYPE_INT_ARGB);
+			bufferedImage = ImageUtil.createImage(g, size.width, size.height, BufferedImage.TYPE_INT_ARGB);
 			final Graphics2D g2 = (Graphics2D) bufferedImage.getGraphics().create();
 
 			final int max = 100;
@@ -239,9 +242,9 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 	 */
 	private synchronized void draw(Graphics g, Image bufferedImage) {
 		UIUtil.drawImage(g, bufferedImage, 0, 0, null);
-		if (UIUtil.isJreHiDPI((Graphics2D) g) && !UIUtil.isUnderDarcula()) {
+		if (JreHiDpiUtil.isJreHiDPI((Graphics2D) g) && !UIUtil.isUnderDarcula()) {
 			Graphics2D g2 = (Graphics2D) g.create(0, 0, getWidth(), getHeight());
-			float s = JBUI.sysScale(g2);
+			float s = JBUIScale.sysScale(g2);
 			g2.scale(1 / s, 1 / s);
 			g2.setColor(UIUtil.isUnderIntelliJLaF() ? Gray.xC9 : Gray.x91);
 			g2.drawLine(0, 0, (int) (s * getWidth()), 0);
