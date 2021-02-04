@@ -27,6 +27,10 @@ public class CpuUsageManager {
 
 	static synchronized void update() {
 		try {
+			if (cpuUsagePanelList.isEmpty()) {
+				return;
+			}
+
 			system = (int) Math.round(OS_BEAN.getSystemCpuLoad() * 100);
 			process = (int) Math.round(OS_BEAN.getProcessCpuLoad() * 100); // this shit is expensive!!!
 			// log.info("process" + process + " system=" + system);
