@@ -176,7 +176,7 @@ public class CpuUsagePanel extends JButton implements CustomStatusBarWidget {
 		if (bufferedImage == null || stateChanged) {
 			final Dimension size = getSize();
 			//rare error
-			if (size.width < 0 || size.height < 0) {
+			if (size.width <= 0 || size.height <= 0) {
 				return;
 			}
 
