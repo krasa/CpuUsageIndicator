@@ -1,4 +1,4 @@
-<idea-plugin version="2">
+<idea-plugin>
 	<id>krasa.CpuUsageIndicator</id>
 	<name>CPU Usage Indicator</name>
 	<vendor url="https://github.com/krasa/CpuUsageIndicator" email="vojta.krasa@gmail.com">Vojtech
