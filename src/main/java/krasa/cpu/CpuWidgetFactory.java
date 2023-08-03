@@ -13,7 +13,7 @@ public class CpuWidgetFactory implements StatusBarWidgetFactory {
   @Override
   public @NotNull
   String getId() {
-    return "KrasaCpu";
+    return "krasaCpuUsageWidget";
   }
 
   @Override
