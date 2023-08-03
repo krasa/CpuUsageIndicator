@@ -1,7 +1,6 @@
 <idea-plugin version="2">
 	<id>krasa.CpuUsageIndicator</id>
 	<name>CPU Usage Indicator</name>
-	<version>1.16-IJ2023</version>
 	<vendor url="https://github.com/krasa/CpuUsageIndicator" email="vojta.krasa@gmail.com">Vojtech
 		Krasa
 	</vendor>
@@ -15,16 +14,10 @@
       <br/>
       Note:<br/>
       -it is painted in a background thread, not EDT, so it will update even when the GUI is stuck<br/>
-      -getting the process usage is very expensive operation :(<br/>
+      -getting the process usage is a very expensive operation :(<br/>
     ]]></description>
 
-	<change-notes><![CDATA[
-		Compatibility with 2023.2
-    ]]>
-	</change-notes>
 
-	<!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-	<idea-version since-build="232.000"/>
 
 	<!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
 		 on how to target different products -->
