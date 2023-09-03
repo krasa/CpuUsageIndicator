@@ -2,8 +2,8 @@
 
 ## [Unreleased]
 
-## [1.17.2023] - 2023-08-03
-- IntelliJ 2023.2 compatibility
+## [1.15.0-IJ2020.1] - 2023-09-03
+- small bug fix
 
-[Unreleased]: https://github.com/krasa/CpuUsageIndicator/compare/v1.17.2023...HEAD
-[1.17.2023]: https://github.com/krasa/CpuUsageIndicator/commits/v1.17.2023
+[Unreleased]: https://github.com/krasa/CpuUsageIndicator/compare/v1.15.0-IJ2020.1...HEAD
+[1.15.0-IJ2020.1]: https://github.com/krasa/CpuUsageIndicator/commits/v1.15.0-IJ2020.1
