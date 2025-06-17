@@ -1,9 +1,12 @@
 package krasa.cpu;
 
 import com.intellij.concurrency.JobScheduler;
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.sun.management.OperatingSystemMXBean;
+import krasa.cpu.diagnostic.PerformanceWatcherForm;
 
+import javax.swing.*;
 import java.awt.*;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -14,14 +17,15 @@ public class CpuUsageManager {
 	private static final Logger log = Logger.getInstance(CpuUsageManager.class);
 
 	private static final OperatingSystemMXBean OS_BEAN = ManagementFactory.getPlatformMXBean(
-		OperatingSystemMXBean.class);
+			OperatingSystemMXBean.class);
 
 	volatile static int system = 0;
 	volatile static int process = 0;
 	static boolean broken = false;
+	public volatile static boolean paintAsync = PropertiesComponent.getInstance().getBoolean(PerformanceWatcherForm.KRASA_CPU_USAGE_INDICATOR_PAINT_CPU_ASYNC);
 
 	private static ScheduledFuture<?> scheduledFuture = JobScheduler.getScheduler().scheduleWithFixedDelay(
-		CpuUsageManager::update, 1, 1, TimeUnit.SECONDS);
+			CpuUsageManager::update, 1, 1, TimeUnit.SECONDS);
 
 	private static java.util.Set<CpuUsagePanel> cpuUsagePanelList = new CopyOnWriteArraySet<>();
 
@@ -35,13 +39,22 @@ public class CpuUsageManager {
 			process = (int) Math.round(OS_BEAN.getProcessCpuLoad() * 100); // this shit is expensive!!!
 			// log.info("process" + process + " system=" + system);
 
-			boolean painted = false;
-			for (CpuUsagePanel cpuUsagePanel : cpuUsagePanelList) {
-				painted = cpuUsagePanel.update() || painted;
+			if (paintAsync) {
+				boolean painted = false;
+				for (CpuUsagePanel cpuUsagePanel : cpuUsagePanelList) {
+					painted = cpuUsagePanel.update() || painted;
+				}
+				if (painted) {
+					Toolkit.getDefaultToolkit().sync();
+				}
+			} else {
+				SwingUtilities.invokeLater(() -> {
+					for (CpuUsagePanel cpuUsagePanel : cpuUsagePanelList) {
+						cpuUsagePanel.update();
+					}
+				});
 			}
-			if (painted) {
-				Toolkit.getDefaultToolkit().sync();
-			}
+
 			broken = false;
 		} catch (Exception e) {
 			if (broken) {

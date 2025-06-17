@@ -1,8 +1,10 @@
 package krasa.cpu.diagnostic;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.util.registry.RegistryValue;
+import krasa.cpu.CpuUsageManager;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -11,15 +13,17 @@ import java.awt.event.ActionListener;
 
 public class PerformanceWatcherForm {
     private static final @NotNull Logger log = Logger.getInstance(PerformanceWatcherForm.class);
+    public static final String KRASA_CPU_USAGE_INDICATOR_PAINT_CPU_ASYNC = "krasa.CpuUsageIndicator.paintCpuAsync";
 
     private JPanel root;
 
     private JTextField unresponsiveIntervalField;
     private JButton resetToDefaultButton;
     private com.intellij.openapi.ui.ex.MultiLineLabel label;
+	private JCheckBox paintCPUUsageOutsideCheckBox;
 
 
-    private final RegistryValue UNRESPONSIVE_INTERVAL_MS = Registry.get("performance.watcher.unresponsive.interval.ms");
+	private final RegistryValue UNRESPONSIVE_INTERVAL_MS = Registry.get("performance.watcher.unresponsive.interval.ms");
     private static boolean broken;
 
 
@@ -35,6 +39,7 @@ public class PerformanceWatcherForm {
                     return;
                 }
                 UNRESPONSIVE_INTERVAL_MS.resetToDefault();
+                PropertiesComponent.getInstance().setValue(KRASA_CPU_USAGE_INDICATOR_PAINT_CPU_ASYNC, false);
                 init();
 
             }
@@ -48,6 +53,7 @@ public class PerformanceWatcherForm {
         try {
             int unresponsiveInterval = UNRESPONSIVE_INTERVAL_MS.asInteger();
             unresponsiveIntervalField.setText(String.valueOf(unresponsiveInterval));
+            paintCPUUsageOutsideCheckBox.setSelected(PropertiesComponent.getInstance().getBoolean(KRASA_CPU_USAGE_INDICATOR_PAINT_CPU_ASYNC));
         } catch (Exception e) {
             broken = true;
             log.error(e);
@@ -69,6 +75,7 @@ public class PerformanceWatcherForm {
             modified = unresponsiveInterval != Integer.parseInt(unresponsiveIntervalField.getText());
         } catch (NumberFormatException e) {
         }
+        modified |= paintCPUUsageOutsideCheckBox.isSelected() != PropertiesComponent.getInstance().getBoolean(KRASA_CPU_USAGE_INDICATOR_PAINT_CPU_ASYNC);
         return modified;
     }
 
@@ -83,5 +90,7 @@ public class PerformanceWatcherForm {
         }
 
         UNRESPONSIVE_INTERVAL_MS.setValue(unresponsiveInterval);
+        PropertiesComponent.getInstance().setValue(KRASA_CPU_USAGE_INDICATOR_PAINT_CPU_ASYNC, paintCPUUsageOutsideCheckBox.isSelected());
+        CpuUsageManager.paintAsync = paintCPUUsageOutsideCheckBox.isSelected();
     }
 }
